@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Iterable, List, Union
 
 import pyarrow as pa
@@ -15,13 +14,27 @@ from krayon.join.left_anti_join import table_left_anti_join_dataset
 from krayon.join.right_anti_join import dataset_right_anti_join_table
 
 
-@dataclass
+# Can convert to dataclass after dropping support for py39
+# (dataclass supports keyword-only arguments in py310)
 class _WrappedAntiJoinSharedArgs:
-    keys: Union[str, List[str]]
-    right_keys: Union[str, List[str], None] = None
-    schema_table: pa.Table
-    result_label: int = 0
-    use_threads: bool = True
+    def __init__(
+        self,
+        *,
+        keys: Union[str, Iterable[str]],
+        right_keys: Union[str, Iterable[str], None] = None,
+        schema_table: pa.Table,
+        result_label: int = 0,
+        use_threads: bool = True,
+    ) -> None:
+        self.keys = keys if isinstance(keys, str) else list(keys)
+        self.right_keys = (
+            right_keys
+            if right_keys is None or isinstance(right_keys, str)
+            else list(right_keys)
+        )
+        self.schema_table = schema_table
+        self.result_label = result_label
+        self.use_threads = use_threads
 
 
 def tables_left_anti_join_dataset(
