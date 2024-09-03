@@ -6,12 +6,9 @@ from ray.data import Dataset
 from ray.data.block import Block
 from ray.data.aggregate import AggregateFn
 
-from krayon.join.utils import (
-    PYARROW_BATCH_FORMAT,
-    block_to_table,
-    intersect_tables,
-    validate_join_keys,
-)
+
+from krayon.join.utils import intersect_tables, validate_join_keys
+from krayon.utils import PYARROW_BATCH_FORMAT, block_to_table
 
 
 def right_anti_join_datasets(

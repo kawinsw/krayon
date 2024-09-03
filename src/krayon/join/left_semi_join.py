@@ -3,8 +3,8 @@ from typing import List, Union
 import pyarrow as pa
 from ray.data import Dataset
 
+from krayon.utils import PYARROW_BATCH_FORMAT
 from krayon.join.left_anti_join import table_left_anti_join_dataset
-from krayon.utils import PYARROW_BATCH_FORMAT, validate_join_args
 
 
 def left_semi_join_datasets(
