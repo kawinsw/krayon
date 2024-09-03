@@ -9,7 +9,6 @@ from krayon._wait_all import wait_all
 
 
 T = TypeVar("T")
-ObjectOrRefTypeVar = TypeVar("ObjectOrRefTypeVar", bound=ObjectOrRef, covariant=True)
 FilterFnType = Callable[[T], bool]
 
 
@@ -56,9 +55,9 @@ make_filter_info_remote = ray.remote(make_filter_info)
 
 
 def make_all_filter_info_in_groups(
-    groups: Iterable[Iterable[ObjectOrRefTypeVar[T]]],
+    groups: Iterable[Iterable[ObjectOrRef[T]]],
     filter_fn: ObjectOrRef[FilterFnType[T]],
-) -> Generator[Tuple[ObjectOrRefTypeVar[T], ObjectRef], None, None]:
+) -> Generator[Tuple[ObjectOrRef[T], ObjectRef], None, None]:
     """
     For each `elem` in each of the given `groups`, yields `(elem, filter_info_ref)`,
     where `filter_info_ref` is an `ObjectRef[FilterInfo]`
@@ -68,15 +67,15 @@ def make_all_filter_info_in_groups(
     for i, group in enumerate(groups):
         for elem in group:
             yield elem, make_filter_info_remote.remote(
-                obj=elem, index=count, filter_fn=filter_fn, label=i
+                obj=elem, filter_fn=filter_fn, index=count, label=i
             )
             count += 1
 
 
 def filter_refs_in_groups(
-    groups: Iterable[Iterable[ObjectOrRefTypeVar[T]]],
+    groups: Iterable[Iterable[ObjectOrRef[T]]],
     filter_fn: ObjectOrRef[FilterFnType[T]],
-) -> Generator[Tuple[ObjectOrRefTypeVar[T], int], None, None]:
+) -> Generator[Tuple[ObjectOrRef[T], int], None, None]:
     filter_ref_pairs = list(make_all_filter_info_in_groups(groups, filter_fn))
     for filter_info in wait_and_filter(
         filter_info_ref for _, filter_info_ref in filter_ref_pairs
@@ -102,7 +101,7 @@ def filter_refs_in_groups(
 
 
 def wait_and_filter(
-    filter_info_refs: Iterable[ObjectRef[FilterInfo]]
+    filter_info_refs: Iterable[ObjectRef]  # specifically ObjectRef[FilterInfo]
 ) -> Generator[FilterInfo, None, None]:
     """
     On each iteration, blocks until any given `FilterInfo` is ready.
