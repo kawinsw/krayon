@@ -4,7 +4,7 @@ import pandas as pd
 import pyarrow as pa
 from ray.data.block import Block
 
-T = TypeVar["T"]
+T = TypeVar("T")
 
 PYARROW_BATCH_FORMAT = "pyarrow"
 
