@@ -26,11 +26,20 @@ def rename_dataset_columns(
         Copy of the input `dataset` with columns renamed
         as specified in `name_changes`.
     """
+    # Validate that all keys in name_changes are input dataset column names
+    initial_column_names = dataset.columns()
+    invalid_keys = set(name_changes).difference(initial_column_names)
+    if invalid_keys:
+        raise ValueError(
+            "The input dataset does not have these column names: "
+            + ", ".join(invalid_keys)
+        )
+
     # Validate that resulting names are all distinct
-    aft_names = transform(dataset.columns(), name_changes)
+    aft_names = transform(initial_column_names, name_changes)
     if len(aft_names) != len(set(aft_names)):
         repeats = ", ".join(
-            f"{aft_name} ({count})"
+            f"{repr(aft_name)} ({count})"
             for aft_name, count in Counter(aft_names).items()
             if count > 1
         )
